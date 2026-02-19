@@ -1,0 +1,26 @@
+name: Build iOS IPA
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    # Define que todos os comandos abaixo serão executados dentro da pasta rba-ipa
+    defaults:
+      run:
+        working-directory: ./rba-ipa
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node and Capacitor
+        run: |
+          npm install
+          # Se o Capacitor ainda não estiver inicializado na pasta, 
+          # estes comandos preparam o terreno:
+          npx cap init "Rádio Brasil Artes" com.iartium.rba --web-dir .
+          npx cap add ios
+          npx cap sync ios
+
+      - name: Build App
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphoneos -configuration AppStoreDistribution package
